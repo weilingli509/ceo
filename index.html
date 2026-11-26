@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" data-theme="blackgold">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -533,6 +533,16 @@
       background-color: #221e2c !important;
       border-color: #3c344a !important;
     }
+    [data-theme="blackgold"] #studentRegCard,
+    [data-theme="blackgold"] #teacherSheetPanel,
+    [data-theme="blackgold"] #certModalCard {
+      background-color: #17151f !important;
+      border-color: #3a3347 !important;
+      color: #f5efe6 !important;
+    }
+    [data-theme="blackgold"] #roundProgressBarWrap {
+      background-color: #2a2538 !important;
+    }
 
     /* --- THEME 3: 🌸 馬卡龍條漫風 (Dreamy Sakura Pink × Lavender × Sky) --- */
     [data-theme="macaron"] {
@@ -778,6 +788,48 @@
   </div>
 
   <!-- =========================================================================
+       CEO CERTIFICATE MODAL (顧亭深總裁頒發・可下載 PNG 證書)
+       ========================================================================= -->
+  <div id="certModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm items-center justify-center p-3 sm:p-5 overflow-y-auto" style="display: none; z-index: 140;">
+    <div id="certModalCard" class="weave-card rounded-3xl w-full max-w-3xl overflow-hidden bg-[#FFFDF9] shadow-2xl my-auto">
+      <div class="px-5 sm:px-6 py-4 bg-[#FAF4EA] border-b border-[#EAE0D3] flex items-center justify-between gap-3">
+        <div>
+          <span class="inline-block px-2.5 py-0.5 rounded-full bg-[#A85D24] text-white text-[11px] font-bold">🏆 OFFICIAL CERTIFICATE</span>
+          <h3 class="text-lg sm:text-xl font-black text-[#2C241E] mt-0.5">顧亭深總裁親頒・榮譽證書</h3>
+        </div>
+        <button id="certCloseBtn" type="button"
+                class="w-9 h-9 rounded-full bg-white hover:bg-[#F4EAE0] border border-[#E8DDD0] text-[#786B60] font-bold text-base flex items-center justify-center transition">
+          ✕
+        </button>
+      </div>
+
+      <div class="p-4 sm:p-6 space-y-4">
+        <!-- Sheet Sync Status Banner -->
+        <div id="certSheetStatus" class="rounded-xl px-4 py-2.5 bg-[#FAF7F2] border border-[#E6DCD0] text-xs sm:text-sm font-bold text-[#9A551C] text-center">
+          ⏳ 正在結算成績...
+        </div>
+
+        <!-- High-Resolution Certificate Canvas Preview -->
+        <div class="rounded-2xl overflow-hidden border-2 border-[#D9B896] bg-[#16131c] shadow-lg">
+          <canvas id="certCanvas" width="1200" height="850" class="w-full h-auto block"></canvas>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap items-center justify-center gap-3 pt-1">
+          <button id="certDownloadBtn" type="button"
+                  class="min-h-[48px] px-6 py-2.5 rounded-xl weave-btn-primary font-extrabold text-sm sm:text-base flex items-center gap-2">
+            ⬇️ 下載 PNG 證書圖片
+          </button>
+          <button id="certRetryBtn" type="button"
+                  class="min-h-[48px] px-5 py-2.5 rounded-xl bg-white hover:bg-[#FDF3E7] border border-[#E2D5C3] text-[#6B5A4C] font-extrabold text-sm sm:text-base transition">
+            🔄 再挑戰一輪（93題）
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
        CLEAN TOP PLATFORM HEADER (Mobile-Friendly Literary Top Bar)
        ========================================================================= -->
   <header class="sticky top-0 w-full bg-[#FFFDF8]/95 backdrop-blur border-b border-[#E7DECB]" style="z-index: 80;">
@@ -792,7 +844,7 @@
             霸總的專屬偏愛
           </h1>
           <p class="text-[11px] font-medium text-[#8E7F72] leading-tight hidden sm:block">
-            林映雪 × 顧亭深｜文青紙感 7000單小說館
+            林映雪 × 顧亭深｜互動小說 7000單學習館
           </p>
         </div>
       </div>
@@ -801,11 +853,17 @@
       <div class="hidden xl:flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FDF6ED] border border-[#EFE0C9] text-xs font-medium text-[#964F1C]">
         <span>✨ ALL+ Unit 6–9 全 93 字收錄</span>
         <span class="text-[#DFC19E]">|</span>
-        <span>點擊單字即聽純美式發音 🔊</span>
+        <span>點擊單字即聽美式男主播發音 🔊</span>
       </div>
 
       <!-- Right Utility Controls -->
       <div class="flex items-center gap-1 sm:gap-2 shrink-0">
+        <!-- Broadcast Male Anchor Voice Selector (Mobile + Desktop) -->
+        <select id="voiceAnchorSelect" title="切換男主播聲線" aria-label="切換男主播聲線"
+                class="max-w-[116px] sm:max-w-[148px] min-h-[32px] sm:min-h-[34px] rounded-lg sm:rounded-xl bg-[#FAF6EE] border border-[#E7DECB] px-2 py-1 text-[11px] sm:text-xs font-bold text-[#7A6D60] focus:outline-none focus:border-[#B86B2B] cursor-pointer">
+          <option value="auto">🎙️ 男主播 (推薦)</option>
+        </select>
+
         <button id="muteToggleBtn" type="button" title="音效開關"
                 class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-[#FAF6EE] hover:bg-[#F3ECE2] border border-[#E7DECB] text-xs sm:text-sm flex items-center justify-center transition">
           🔔
@@ -894,7 +952,7 @@
         </div>
       </nav>
 
-      <!-- Warm Reward & Progress Card (Inspired by AI 織夢 Sidebar Gift Box) -->
+      <!-- Warm Reward & Progress Card -->
       <div class="hidden lg:block weave-card rounded-2xl p-4 bg-[#FFFDF9] space-y-3">
         <div class="inline-block px-2.5 py-0.5 rounded-full bg-[#FDF3E7] text-[#B86B2B] text-[11px] font-extrabold">
           🎁 學習進度卡
@@ -930,7 +988,7 @@
          ======================================================================= -->
     <main class="flex-1 min-w-0 w-full">
 
-      <!-- CHARACTER / EPISODE PROFILE HERO CARD (Inspired by AI 織夢 Role Header) -->
+      <!-- CHARACTER / EPISODE PROFILE HERO CARD -->
       <section id="episodeHeaderWrap" class="mb-6" style="display: block;">
         <div class="weave-card rounded-3xl overflow-hidden">
           <!-- Warm Artistic Blurred Banner Header -->
@@ -990,7 +1048,7 @@
                 <span class="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[#9A551C] font-bold">▾</span>
               </div>
               <p id="heroHint" class="text-xs sm:text-sm font-semibold text-[#786B60]">
-                💡 點英文單字聽美式發音 🔊，點 🔍 開啟燈箱單字卡！
+                💡 點英文單字聽美式男主播發音 🔊，點 🔍 開啟燈箱單字卡！
               </p>
             </div>
           </div>
@@ -1024,7 +1082,7 @@
       <section id="panel-readEn" style="display: none;">
         <div class="weave-card rounded-2xl p-3.5 sm:p-4 mb-4 flex flex-wrap items-center justify-between gap-3 bg-[#FFFDF9]">
           <div class="text-xs sm:text-sm font-medium text-[#63574D]">
-            🌐 <span class="text-[#964F1C] font-bold">7000單全英文小說版：</span>點選單字即可聽純美式發音，流暢享受英文原味劇情。
+            🌐 <span class="text-[#964F1C] font-bold">7000單全英文小說版：</span>點選單字即可聽美式男主播發音，流暢享受英文原味劇情。
           </div>
           <button id="toggleEnGlossBtn" type="button"
                   class="min-h-[36px] px-3.5 py-1.5 rounded-xl bg-[#FDF3E4] hover:bg-[#F7E5CE] border border-[#E6C9A5] text-[#964F1C] text-xs sm:text-sm font-bold transition">
@@ -1147,9 +1205,64 @@
       </section>
 
       <!-- =====================================================================
-           TAB 5: 📝 單字測驗 (6 Interactive Quiz Modes)
+           TAB 5: 📝 單字測驗 (6 Interactive Quiz Modes + 93-Q Certificate)
            ===================================================================== -->
       <section id="panel-vocabQuiz" style="display: none;">
+        <!-- 學生資料登記＋試算表自動連動卡片 -->
+        <div id="studentRegCard" class="weave-card rounded-3xl p-4 sm:p-5 mb-5 bg-[#FFFDF9] space-y-3.5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded-full bg-[#FDF3E7] border border-[#EBD2B4] text-[#B86B2B] text-xs font-extrabold">🎓 成績登記與證書</span>
+              <span class="text-xs sm:text-sm font-bold text-[#786B60]">完成 93 題全單字挑戰（最多可錯 25 題，答對 68 題以上過關）即可領取顧總證書！</span>
+            </div>
+            <button id="toggleTeacherSheetBtn" type="button"
+                    class="px-3 py-1 rounded-xl bg-[#FAF7F2] hover:bg-[#FDF3E7] border border-[#E2D5C3] text-[#786B60] text-xs font-extrabold transition">
+              ⚙️ 教師試算表設定
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <div>
+              <label for="stuClassInput" class="block text-xs font-extrabold text-[#786B60] mb-1">班級</label>
+              <input id="stuClassInput" type="text" placeholder="例：高二忠 / 商英二甲"
+                     class="w-full min-h-[42px] rounded-xl bg-[#FAF7F2] border border-[#E2D5C3] px-3.5 py-1.5 text-sm font-bold text-[#2C241E] focus:outline-none focus:border-[#B86B2B]" />
+            </div>
+            <div>
+              <label for="stuSeatInput" class="block text-xs font-extrabold text-[#786B60] mb-1">座號</label>
+              <input id="stuSeatInput" type="text" placeholder="例：08"
+                     class="w-full min-h-[42px] rounded-xl bg-[#FAF7F2] border border-[#E2D5C3] px-3.5 py-1.5 text-sm font-bold text-[#2C241E] focus:outline-none focus:border-[#B86B2B]" />
+            </div>
+            <div>
+              <label for="stuNameInput" class="block text-xs font-extrabold text-[#786B60] mb-1">姓名</label>
+              <input id="stuNameInput" type="text" placeholder="請輸入姓名（印於證書上）"
+                     class="w-full min-h-[42px] rounded-xl bg-[#FAF7F2] border border-[#E2D5C3] px-3.5 py-1.5 text-sm font-bold text-[#2C241E] focus:outline-none focus:border-[#B86B2B]" />
+            </div>
+          </div>
+
+          <!-- 教師 Google 試算表連動設定區 (預設收合) -->
+          <div id="teacherSheetPanel" class="rounded-2xl p-4 bg-[#FAF7F2] border border-[#E6DCD0] space-y-3" style="display: none;">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="text-xs sm:text-sm font-extrabold text-[#9A551C]">📊 Google 試算表自動連動（Apps Script 網頁應用程式網址）</div>
+              <button id="copyAppsScriptBtn" type="button"
+                      class="px-3 py-1 rounded-lg bg-white hover:bg-[#FDF3E7] border border-[#E2D5C3] text-[#9A551C] text-xs font-extrabold transition">
+                📋 複製 Apps Script 程式碼
+              </button>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <input id="sheetWebhookInput" type="url" placeholder="貼上 https://script.google.com/macros/s/....../exec"
+                     class="flex-1 min-w-[220px] min-h-[40px] rounded-xl bg-white border border-[#E2D5C3] px-3 py-1.5 text-xs sm:text-sm font-semibold text-[#2C241E] focus:outline-none focus:border-[#B86B2B]" />
+              <button id="saveSheetWebhookBtn" type="button"
+                      class="min-h-[40px] px-4 rounded-xl weave-btn-primary text-xs sm:text-sm font-extrabold">
+                💾 儲存網址
+              </button>
+            </div>
+            <p id="sheetConfigMsg" class="text-xs font-bold text-[#786B60]">
+              💡 步驟：開新 Google 試算表 →「擴充功能」→「Apps Script」→ 貼上複製的程式碼 → 右上「部署」→「新增部署作業」→ 選「網頁應用程式」、存取權限選「任何人」→ 複製產生的網址貼到上方。
+            </p>
+          </div>
+        </div>
+
+        <!-- Quiz Arena Mode Selector Card -->
         <div class="weave-card rounded-3xl p-5 sm:p-6 mb-5 bg-[#FFFDF9]">
           <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
             <div>
@@ -1183,9 +1296,27 @@
 
         <!-- Standard Quiz Arena (Modes 1–5) -->
         <div id="quizStandardArea" class="weave-card rounded-3xl p-5 sm:p-7 space-y-5" style="display: block;">
+          <!-- 93題全套總分進度列 -->
+          <div class="rounded-2xl p-3.5 bg-[#FAF7F2] border border-[#EAE0D3] space-y-2">
+            <div class="flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm font-extrabold">
+              <span class="text-[#9A551C]">🎯 本回合進度：<strong id="roundProgressText">第 1 / 93 題</strong> <span id="roundQuotaHint" class="text-[#786B60] font-bold">（剩餘容錯：25 題）</span></span>
+              <div class="flex items-center gap-3">
+                <span class="text-[#2C241E]">目前總分：<strong id="roundScoreText" class="text-[#B86B2B] text-base">0</strong> / 100 分</span>
+                <button id="finishRoundEarlyBtn" type="button"
+                        class="px-3 py-1 rounded-lg bg-white hover:bg-[#FDF3E7] border border-[#E2D5C3] text-[#9A551C] text-xs font-extrabold transition"
+                        style="display: none;">
+                  📊 查看目前戰績
+                </button>
+              </div>
+            </div>
+            <div id="roundProgressBarWrap" class="w-full h-2 rounded-full bg-[#EFE7DC] overflow-hidden">
+              <div id="roundProgressBar" class="h-full rounded-full bg-gradient-to-r from-[#D48C4E] to-[#A85D24] transition-all duration-300" style="width: 0%;"></div>
+            </div>
+          </div>
+
           <div class="flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm font-extrabold text-[#786B60]">
             <span id="quizModeLabel" class="px-3.5 py-1 rounded-full bg-[#FDF3E7] border border-[#EBD2B4] text-[#9A551C]">1. 看英文選中文</span>
-            <span>連勝：<strong id="quizStreakText" class="text-[#B86B2B]">0</strong> 🔥 ｜ 總分：<strong id="quizScoreText" class="text-[#9A551C]">0</strong> 🏆</span>
+            <span>連勝：<strong id="quizStreakText" class="text-[#B86B2B]">0</strong> 🔥 ｜ 累積積分：<strong id="quizScoreText" class="text-[#9A551C]">0</strong> 🏆</span>
           </div>
 
           <div id="quizPromptBox" class="rounded-2xl bg-[#FAF7F2] border border-[#EAE0D3] p-5 sm:p-6 text-center space-y-3">
@@ -1200,20 +1331,19 @@
 
           <div class="flex justify-end">
             <button id="quizNextBtn" type="button"
-                    class="min-h-[48px] px-7 py-2.5 rounded-xl weave-btn-primary font-extrabold text-base"
+                    class="min-h-[48px] px-7 py-2.5 rounded-xl weave-btn-primary font-extrabold text-sm sm:text-base"
                     style="display: none;">
               下一題 ➡
             </button>
           </div>
         </div>
 
-        <!-- Interactive Matching Arena (Mode 6) -->
-        <div id="quizMatchArea" class="weave-card rounded-3xl p-5 sm:p-6 space-y-4" style="display: none;">
-          <div class="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h3 class="text-lg sm:text-xl font-black text-[#2C241E]">⚡ 閃電配對挑戰（每次 6 組）</h3>
-              <p class="text-xs sm:text-sm font-semibold text-[#786B60]">先點左側英文卡片，再點右側對應中文；配對成功即放金燦煙火！</p>
-            </div>
+        <!-- Matching Game Arena (Mode 6) -->
+        <div id="quizMatchArea" class="weave-card rounded-3xl p-5 sm:p-7 space-y-4" style="display: none;">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <p class="text-sm sm:text-base font-extrabold text-[#2C241E]">
+              🔗 點選左邊英文單字（會發音），再配對右邊正確中文！
+            </p>
             <button id="matchNewRoundBtn" type="button"
                     class="min-h-[42px] px-4 py-2 rounded-xl weave-btn-primary text-sm font-extrabold">
               🔄 換一組新題目
@@ -1384,58 +1514,222 @@
       VOCAB_DATA.forEach(v => { VOCAB_MAP[v.id] = v; });
 
       /* =======================================================================
-         B. INTERACTIVE NOVEL CHARACTER AVATAR & BUBBLE STYLES (WARM EDITORIAL)
+         B. BROADCAST ANCHOR AMERICAN MALE VOICE (標準美式男主播聲線＋手機解鎖)
+         ======================================================================= */
+      let cachedMaleVoice = null;
+      let availableMaleVoices = [];
+      let speechUnlocked = false;
+
+      // 手機瀏覽器 (iOS Safari / Android Chrome) 首次觸碰自動解鎖語音引擎
+      function unlockMobileSpeechOnce() {
+        if (speechUnlocked || !('speechSynthesis' in window)) return;
+        speechUnlocked = true;
+        try {
+          window.speechSynthesis.getVoices();
+          const silentUtter = new SpeechSynthesisUtterance(' ');
+          silentUtter.volume = 0;
+          window.speechSynthesis.speak(silentUtter);
+        } catch (e) {}
+      }
+      document.addEventListener('touchstart', unlockMobileSpeechOnce, { once: true, passive: true });
+      document.addEventListener('click', unlockMobileSpeechOnce, { once: true, passive: true });
+
+      function populateVoiceSelector() {
+        const sel = document.getElementById('voiceAnchorSelect');
+        if (!sel || !availableMaleVoices.length) return;
+        const currentVal = sel.value;
+        sel.innerHTML = `<option value="auto">🎙️ 男主播 (推薦)</option>` +
+          availableMaleVoices.map((v, idx) => {
+            const shortName = v.name
+              .replace(/Microsoft |Google |Apple /g, '')
+              .replace(/Online \(Natural\) - /g, '')
+              .replace(/English \(United States\)/g, 'US')
+              .slice(0, 20);
+            return `<option value="${idx}">🎙️ ${shortName}</option>`;
+          }).join('');
+        if (currentVal && Array.from(sel.options).some(o => o.value === currentVal)) {
+          sel.value = currentVal;
+        }
+      }
+
+      function loadEnVoice() {
+        if (!('speechSynthesis' in window)) return null;
+        const voices = window.speechSynthesis.getVoices();
+        if (!voices || !voices.length) return null;
+
+        const enVoices = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+        const usVoices = enVoices.filter(v => /en[-_]us/i.test(v.lang));
+
+        // 嚴格排除所有女聲（包含 Google US English 女聲）與機器人音效聲線
+        const femaleOrNoveltyPattern = /Google US English|Google UK English Female|Female|Samantha|Victoria|Karen|Moira|Tessa|Fiona|Zira|Aria|Jenny|Emma|Sara|Michelle|Ava|Allison|Susan|Hazel|Martha|Kate|Serena|Stephanie|Sonia|Libby|Natasha|Joanna|Kendra|Kimberly|Salli|Ivy|Ana|Nicky|Veena|Melina|Laura|Luciana|Paulina|Monica|Yuna|Mei-Jia|Ting-Ting|Sin-Ji|Albert|Bad News|Bahh|Bells|Boing|Bubbles|Cellos|Deranged|Good News|Hysterical|Jester|Junior|Organ|Superstar|Trinoids|Whisper|Wobble|Zarvox|Fred|Ralph|Kathy|Princess/i;
+
+        // 頂級廣播男主播順位 (優先純正美式男聲，若無則選英式/通用男聲，絕不落回女聲)
+        const anchorPriority = [
+          /Microsoft Andrew.*Natural/i,
+          /Microsoft Brian.*Natural/i,
+          /Microsoft Guy.*Natural/i,
+          /Microsoft Christopher.*Natural/i,
+          /Microsoft Eric.*Natural/i,
+          /Microsoft Steffan.*Natural/i,
+          /Microsoft Davis.*Natural/i,
+          /Microsoft Ryan.*Natural/i,
+          /Aaron|Alex|Matthew|Daniel|Nathan|Evan|Tom|Oliver|Liam|Arthur|Gordon|Rishi/i,
+          /Google UK English Male/i,
+          /Microsoft David|Microsoft Mark|Microsoft George/i,
+          /\bMale\b/i
+        ];
+
+        const cleanUsMales = usVoices.filter(v => !femaleOrNoveltyPattern.test(v.name));
+        const cleanAllEnMales = enVoices.filter(v => !femaleOrNoveltyPattern.test(v.name));
+        const pool = cleanUsMales.length ? cleanUsMales : (cleanAllEnMales.length ? cleanAllEnMales : enVoices);
+
+        const scored = pool.slice().sort((a, b) => {
+          const getRank = (v) => {
+            const idx = anchorPriority.findIndex(rx => rx.test(v.name));
+            return idx === -1 ? 99 : idx;
+          };
+          return getRank(a) - getRank(b);
+        });
+
+        availableMaleVoices = scored.length ? scored : enVoices;
+
+        const sel = document.getElementById('voiceAnchorSelect');
+        if (sel && sel.value !== 'auto') {
+          const idx = parseInt(sel.value, 10);
+          if (availableMaleVoices[idx]) {
+            cachedMaleVoice = availableMaleVoices[idx];
+            populateVoiceSelector();
+            return cachedMaleVoice;
+          }
+        }
+
+        cachedMaleVoice = availableMaleVoices[0] || null;
+        populateVoiceSelector();
+        return cachedMaleVoice;
+      }
+
+      if ('speechSynthesis' in window) {
+        loadEnVoice();
+        window.speechSynthesis.onvoiceschanged = loadEnVoice;
+      }
+
+      const voiceAnchorSel = document.getElementById('voiceAnchorSelect');
+      if (voiceAnchorSel) {
+        voiceAnchorSel.addEventListener('change', (e) => {
+          const val = e.target.value;
+          if (val === 'auto') {
+            cachedMaleVoice = availableMaleVoices[0] || loadEnVoice();
+          } else {
+            const idx = parseInt(val, 10);
+            if (availableMaleVoices[idx]) cachedMaleVoice = availableMaleVoices[idx];
+          }
+          speakEnglish('Welcome back. Let us begin.', 0.98);
+        });
+      }
+
+      function sanitizeEnglishOnly(text) {
+        return String(text || '')
+          .replace(/\((N\.|V\.|phr\.|adj\.|adv\.|n\.|v\.|a|s)\)/gi, (m, g1) => (g1.toLowerCase() === 'a' ? 'a' : ''))
+          .replace(/[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]/g, ' ')
+          .replace(/\//g, ' or ')
+          .replace(/\bsth\b/gi, 'something')
+          .replace(/\bsb\b/gi, 'someone')
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
+
+      // 修復電腦版/Chrome 語音合成器卡死或無聲問題 (先 resume 再 cancel + 延遲 30ms 觸發)
+      let activeUtterance = null;
+      function speakEnglish(rawText, rate = 0.98, onEndCallback = null, pitch = 1.0) {
+        if (!('speechSynthesis' in window)) return;
+        const clean = sanitizeEnglishOnly(rawText);
+        if (!clean) return;
+        try {
+          if (window.speechSynthesis.paused) {
+            window.speechSynthesis.resume();
+          }
+          window.speechSynthesis.cancel();
+
+          setTimeout(() => {
+            try {
+              const utter = new SpeechSynthesisUtterance(clean);
+              activeUtterance = utter; // 防止被瀏覽器 GC 提前回收導致 onend 不觸發
+              const voice = loadEnVoice() || cachedMaleVoice;
+              if (voice) {
+                utter.voice = voice;
+                utter.lang = voice.lang || 'en-US';
+              } else {
+                utter.lang = 'en-US';
+              }
+              utter.rate = rate;
+              utter.pitch = pitch;
+              utter.volume = 1.0;
+
+              let finished = false;
+              const done = () => {
+                if (finished) return;
+                finished = true;
+                activeUtterance = null;
+                if (typeof onEndCallback === 'function') onEndCallback();
+              };
+              utter.onend = done;
+              utter.onerror = done;
+
+              window.speechSynthesis.speak(utter);
+            } catch (innerErr) {
+              if (typeof onEndCallback === 'function') onEndCallback();
+            }
+          }, 30);
+        } catch (e) {}
+      }
+
+      function speakCeoMaleVoice(rawText) {
+        speakEnglish(rawText, 0.96, null, 1.0);
+      }
+
+      /* =======================================================================
+         C. CHARACTER PROFILES FOR LITERARY DIALOGUE RENDERING
          ======================================================================= */
       const SPEAKERS = {
         '雪': {
           name: '林映雪',
-          tag: '🎻 藝術商英雙主修',
-          tagClass: 'bg-[#FBECE6] text-[#B35C44]',
           badge: '雪',
-          align: 'left',
+          tag: '音樂系才女',
           avatarBg: 'from-[#E29578] to-[#C06C52]',
-          bubbleClass: 'bubble-xue rounded-2xl rounded-tl-sm'
+          tagClass: 'bg-[#FDF0EA] text-[#B85A3A] border border-[#F2D1C2]'
         },
         '深': {
           name: '顧亭深',
-          tag: '👑 高冷校董',
-          tagClass: 'bg-[#FDF3E7] text-[#9A551C]',
           badge: '深',
-          align: 'right',
+          tag: '👑 高冷校董',
           avatarBg: 'from-[#4A3B32] to-[#2C241E]',
-          bubbleClass: 'bubble-shen rounded-2xl rounded-tr-sm'
-        },
-        '董': {
-          name: '顧董',
-          tag: '💼 集團董事長',
-          tagClass: 'bg-[#EFECE8] text-[#5C5147]',
-          badge: '董',
-          align: 'left',
-          avatarBg: 'from-[#7A6E65] to-[#524840]',
-          bubbleClass: 'bubble-side rounded-2xl rounded-tl-sm'
-        },
-        '薇': {
-          name: '薇薇安',
-          tag: '💄 傲嬌名媛',
-          tagClass: 'bg-[#F5ECEF] text-[#96526A]',
-          badge: '薇',
-          align: 'left',
-          avatarBg: 'from-[#B87D90] to-[#8F5368]',
-          bubbleClass: 'bubble-side rounded-2xl rounded-tl-sm'
+          tagClass: 'bg-[#FDF3E4] text-[#964F1C] border border-[#E9CFA9]'
         },
         '蘇': {
           name: '蘇助理',
-          tag: '📋 首席特助',
-          tagClass: 'bg-[#ECF2F4] text-[#4C6D7A]',
           badge: '蘇',
-          align: 'left',
-          avatarBg: 'from-[#7393A0] to-[#4E6E7B]',
-          bubbleClass: 'bubble-side rounded-2xl rounded-tl-sm'
+          tag: '首席特助',
+          avatarBg: 'from-[#6B7280] to-[#374151]',
+          tagClass: 'bg-[#F3F4F6] text-[#4B5563] border border-[#E5E7EB]'
+        },
+        '薇': {
+          name: '薇薇安',
+          badge: '薇',
+          tag: '名媛對手',
+          avatarBg: 'from-[#C084FC] to-[#9333EA]',
+          tagClass: 'bg-[#FAF5FF] text-[#7E22CE] border border-[#E9D5FF]'
+        },
+        '董': {
+          name: '顧董事長',
+          badge: '董',
+          tag: '顧氏掌門',
+          avatarBg: 'from-[#78350F] to-[#451A03]',
+          tagClass: 'bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]'
         }
       };
 
       /* =======================================================================
-         C. 10 EPISODES (ALL 93 VOCAB ITEMS WOVEN INTO BOTH ZH & EN)
+         D. 10 EPISODES (ALL 93 VOCAB ITEMS WOVEN INTO BOTH ZH & EN)
          ======================================================================= */
       const EPISODES = [
         {
@@ -1688,7 +1982,7 @@
       ];
 
       /* =======================================================================
-         D. 20 READING COMPREHENSION QUESTIONS (2 PER EPISODE)
+         E. 20 READING COMPREHENSION QUESTIONS (2 PER EPISODE)
          ======================================================================= */
       const READING_QUESTIONS = [
         { ep: 1, q: 'Why did Tingshen Gu approach Yingxue in Episode 1?', opts: ['He admired her imaginative demo and offered a win-win arts showcase contract.', 'He wanted to cancel her scholarship immediately.', 'He mistook her for Vivian’s assistant.', 'He needed someone to drive his luxury sedan.'], ans: 0, exp: '顧亭深聽過她的試音帶，欣賞她的創意與藝術靈魂，主動提出雙贏合作。' },
@@ -1714,7 +2008,7 @@
       ];
 
       /* =======================================================================
-         E. 36 UNIQUE NON-REPEATING CEO ENCOURAGEMENT LINES (顧亭深專屬語錄)
+         F. 36 UNIQUE NON-REPEATING CEO ENCOURAGEMENT LINES (顧亭深專屬語錄)
          ======================================================================= */
       const CEO_QUOTES = [
         { zh: '不錯，林映雪，你的記憶力比我的特助還精準。', en: 'Impressive, Yingxue. Your memory is even sharper than my chief assistant’s.' },
@@ -1756,8 +2050,10 @@
       ];
 
       /* =======================================================================
-         F. APPLICATION STATE
+         G. APPLICATION STATE
          ======================================================================= */
+      const DEFAULT_SHEET_WEBHOOK_URL = '';
+
       const state = {
         activeTab: 'readZh',
         theme: 'blackgold',
@@ -1776,6 +2072,13 @@
         quizScope: 'ALL',
         currentQuestion: null,
         quizAnswered: false,
+        roundTotal: 93,
+        maxAllowedWrong: 25,
+        roundQueue: [],
+        roundAsked: 0,
+        roundCorrect: 0,
+        roundWrong: 0,
+        roundScore: 0,
         matchSelectedEn: null,
         matchSelectedZh: null,
         matchMatchedCount: 0,
@@ -1785,11 +2088,12 @@
         lastQuoteIdx: -1,
         toastTimer: null,
         currentQuoteEn: '',
-        modalVocabId: null
+        modalVocabId: null,
+        sheetWebhookUrl: DEFAULT_SHEET_WEBHOOK_URL
       };
 
       /* =======================================================================
-         G. WEB AUDIO API INTERACTIVE SFX (ZERO EXTERNAL AUDIO FILES)
+         H. WEB AUDIO API INTERACTIVE SFX (ZERO EXTERNAL AUDIO FILES)
          ======================================================================= */
       let audioCtx = null;
       function getAudioCtx() {
@@ -1856,61 +2160,11 @@
         } catch (e) {}
       }
 
-      /* =======================================================================
-         H. PURE en-US SPEECH SYNTHESIS (NEVER SPEAKS CHINESE!)
-         ======================================================================= */
-      let cachedEnVoice = null;
-      function loadEnVoice() {
-        if (!('speechSynthesis' in window)) return null;
-        const voices = window.speechSynthesis.getVoices();
-        if (!voices || !voices.length) return null;
-        cachedEnVoice =
-          voices.find(v => v.lang === 'en-US' && /Google US English|Samantha|Alex|Aria|Natural/i.test(v.name)) ||
-          voices.find(v => v.lang === 'en-US') ||
-          voices.find(v => v.lang && v.lang.startsWith('en'));
-        return cachedEnVoice;
-      }
-
-      if ('speechSynthesis' in window) {
-        loadEnVoice();
-        window.speechSynthesis.onvoiceschanged = loadEnVoice;
-      }
-
-      function sanitizeEnglishOnly(text) {
-        return String(text || '')
-          .replace(/\((N\.|V\.|phr\.|adj\.|adv\.|n\.|v\.|a|s)\)/gi, (m, g1) => (g1.toLowerCase() === 'a' ? 'a' : ''))
-          .replace(/[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]/g, ' ')
-          .replace(/\//g, ' or ')
-          .replace(/\bsth\b/gi, 'something')
-          .replace(/\bsb\b/gi, 'someone')
-          .replace(/\s+/g, ' ')
-          .trim();
-      }
-
-      function speakEnglish(rawText, rate = 0.96, onEndCallback = null, pitch = 1.0) {
-        if (!('speechSynthesis' in window)) return;
-        const clean = sanitizeEnglishOnly(rawText);
-        if (!clean) return;
-        try {
-          window.speechSynthesis.cancel();
-          const utter = new SpeechSynthesisUtterance(clean);
-          utter.lang = 'en-US';
-          utter.rate = rate;
-          utter.pitch = pitch;
-          const voice = cachedEnVoice || loadEnVoice();
-          if (voice) utter.voice = voice;
-          if (typeof onEndCallback === 'function') {
-            utter.onend = onEndCallback;
-            utter.onerror = onEndCallback;
-          }
-          window.speechSynthesis.speak(utter);
-        } catch (e) {}
-      }
-
       function stopAllSpeech() {
         state.isPlayingAll = false;
         state.isPaused = false;
         state.listenIndex = -1;
+        activeUtterance = null;
         if ('speechSynthesis' in window) {
           try { window.speechSynthesis.cancel(); } catch (e) {}
         }
@@ -1939,7 +2193,7 @@
           blackgold: ['#f6d88b', '#d4af37', '#f472b6', '#fde68a', '#fb7185', '#ffffff', '#e0b861'],
           macaron: ['#ec4899', '#a855f7', '#60a5fa', '#34d399', '#f472b6', '#fbbf24', '#c084fc']
         };
-        const palette = palettes[state.theme] || palettes.literary;
+        const palette = palettes[state.theme] || palettes.blackgold;
         const count = 46;
         for (let i = 0; i < count; i++) {
           const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.25;
@@ -2036,21 +2290,21 @@
         const toast = document.getElementById('ceoToast');
         toast.style.display = 'block';
         if (state.toastTimer) clearTimeout(state.toastTimer);
+        // 答對後霸總語錄 5 秒自動消失
         state.toastTimer = setTimeout(() => {
           toast.style.display = 'none';
-        }, 6800);
+        }, 5000);
       }
 
       document.getElementById('ceoCloseBtn').addEventListener('click', () => {
         document.getElementById('ceoToast').style.display = 'none';
       });
       document.getElementById('ceoSpeakBtn').addEventListener('click', () => {
-        // Slightly deeper magnetic tone for CEO Gu
-        if (state.currentQuoteEn) speakEnglish(state.currentQuoteEn, 0.9, null, 0.85);
+        if (state.currentQuoteEn) speakCeoMaleVoice(state.currentQuoteEn);
       });
 
       /* =======================================================================
-         K. STORY TOKEN PARSER & WEBTOON DIALOGUE RENDERERS
+         K. STORY TOKEN PARSER & LITERARY NOVEL RENDERERS
          ======================================================================= */
       function parseStoryLine(rawText, mode, epNum, lineIdx) {
         let tokenCounter = 0;
@@ -2094,7 +2348,6 @@
 
       function renderWebtoonBlockHTML(line, parsedHtml, idx) {
         const delay = Math.min(idx * 35, 180);
-        // Smooth Novel Narration Paragraph (Just like a printed indie novel)
         if (!line.speaker) {
           return `
             <p class="story-enter story-narration" style="animation-delay:${delay}ms;">
@@ -2111,7 +2364,6 @@
         const accentClass = accentMap[line.speaker] || 'novel-dialogue-side';
         const badgeTextColor = line.speaker === '深' ? 'text-[#F6DEC1]' : 'text-white';
 
-        // Seamless Literary Dialogue Block (Eye glides smoothly top-to-bottom on mobile & desktop)
         return `
           <div class="story-enter novel-dialogue-block ${accentClass}" style="animation-delay:${delay}ms;">
             <div class="flex items-center gap-2 mb-1.5">
@@ -2139,8 +2391,8 @@
         document.getElementById('dashEpBadge').textContent = `${epObj.ep} / ${EPISODES.length}`;
 
         const hintMap = {
-          readZh: '💡 點英文膠囊聽純美式發音 🔊，點 🔍 開啟燈箱單字詳解卡！',
-          readEn: '🌐 7000單全英文條漫版｜點擊單字發音，右上角可一鍵切回中英版',
+          readZh: '💡 點英文單字聽美式男主播發音 🔊，點 🔍 開啟燈箱單字詳解卡！',
+          readEn: '🌐 7000單全英文小說版｜點擊單字發音，右上角可一鍵切回中英版',
           quizStory: '✏️ 測驗模式｜故事只顯示英文單字，點一下立即翻轉成中文並發音！',
           listen: '🎧 全英文聆聽版｜點擊任一句播放單句，或按「整篇連續播放」自動跟讀'
         };
@@ -2451,8 +2703,403 @@
       });
 
       /* =======================================================================
-         P. TAB 5: 6-MODE INTERACTIVE QUIZ ARENA
+         P. TAB 5: 6-MODE INTERACTIVE QUIZ ARENA + 93-Q SCORING + SHEET + CERT
          ======================================================================= */
+      const MODE_LABELS = {
+        en2zh: '1. 看英文選中文',
+        zh2en: '2. 看中文選英文',
+        listen2zh: '3. 聽英文選中文',
+        cloze: '4. 文意字彙填空',
+        reading: '5. 劇情閱讀測驗',
+        matching: '6. 互動配對題'
+      };
+
+      const SCOPE_LABELS = {
+        ALL: '全部 93 單字',
+        U6: 'Unit 6',
+        U7: 'Unit 7',
+        U8: 'Unit 8',
+        U9: 'Unit 9',
+        CUR: '目前集數'
+      };
+
+      function getStudentProfile() {
+        const stuClass = (document.getElementById('stuClassInput').value || '').trim() || '未填班級';
+        const stuSeat = (document.getElementById('stuSeatInput').value || '').trim() || '00';
+        const stuName = (document.getElementById('stuNameInput').value || '').trim() || '神秘挑戰者';
+        return { stuClass, stuSeat, stuName };
+      }
+
+      ['stuClassInput', 'stuSeatInput', 'stuNameInput'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        try {
+          const saved = localStorage.getItem('ceo_vocab_' + id);
+          if (saved) el.value = saved;
+        } catch (e) {}
+        el.addEventListener('input', () => {
+          try { localStorage.setItem('ceo_vocab_' + id, el.value); } catch (e) {}
+        });
+      });
+
+      (function initSheetWebhook() {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const urlSheet = params.get('sheet');
+          const savedSheet = localStorage.getItem('ceo_vocab_sheet_webhook');
+          state.sheetWebhookUrl = urlSheet || savedSheet || DEFAULT_SHEET_WEBHOOK_URL || '';
+          const inp = document.getElementById('sheetWebhookInput');
+          if (inp && state.sheetWebhookUrl) inp.value = state.sheetWebhookUrl;
+        } catch (e) {}
+      })();
+
+      document.getElementById('toggleTeacherSheetBtn').addEventListener('click', () => {
+        playSfx('click');
+        const panel = document.getElementById('teacherSheetPanel');
+        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+      });
+
+      document.getElementById('saveSheetWebhookBtn').addEventListener('click', () => {
+        playSfx('ding');
+        const val = (document.getElementById('sheetWebhookInput').value || '').trim();
+        state.sheetWebhookUrl = val;
+        try { localStorage.setItem('ceo_vocab_sheet_webhook', val); } catch (e) {}
+        document.getElementById('sheetConfigMsg').textContent = val
+          ? '✅ 已儲存試算表連動網址！學生完成測驗後將自動寫入 Google 試算表。'
+          : 'ℹ️ 已清除試算表網址，目前僅於本機計分與下載證書。';
+      });
+
+      const APPS_SCRIPT_TEMPLATE = `function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(['提交時間', '班級', '座號', '姓名', '作答大題', '測驗範圍', '答對題數', '總題數', '總分']);
+  }
+  var data = JSON.parse(e.postData.contents);
+  sheet.appendRow([
+    new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' }),
+    data.className || '',
+    data.seatNo || '',
+    data.studentName || '',
+    data.quizMode || '',
+    data.scope || '',
+    data.correctCount || 0,
+    data.totalQuestions || 93,
+    data.score || 0
+  ]);
+  return ContentService.createTextOutput(JSON.stringify({ status: 'ok' }))
+    .setMimeType(ContentService.MimeType.JSON);
+}`;
+
+      document.getElementById('copyAppsScriptBtn').addEventListener('click', () => {
+        playSfx('click');
+        const ta = document.createElement('textarea');
+        ta.value = APPS_SCRIPT_TEMPLATE;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          document.getElementById('sheetConfigMsg').textContent = '✅ 已複製 Google Apps Script 程式碼！請貼到 Google 試算表「擴充功能 → Apps Script」並部署為「任何人」可存取的網頁應用程式。';
+        } catch (err) {
+          document.getElementById('sheetConfigMsg').textContent = '⚠️ 複製失敗，請手動檢查瀏覽器權限。';
+        }
+        document.body.removeChild(ta);
+      });
+
+      function resetRoundStats() {
+        const pool = state.quizMode === 'reading'
+          ? (state.quizScope === 'CUR' ? READING_QUESTIONS.filter(q => q.ep === state.currentEp) : READING_QUESTIONS)
+          : getQuizPool();
+        state.roundQueue = shuffleArr(pool);
+        state.roundTotal = state.roundQueue.length || 93;
+        state.maxAllowedWrong = state.roundTotal >= 93 ? 25 : Math.max(1, Math.floor(state.roundTotal * 0.27));
+        state.roundAsked = 0;
+        state.roundCorrect = 0;
+        state.roundWrong = 0;
+        state.roundScore = 0;
+        updateRoundProgressUI();
+      }
+
+      function updateRoundProgressUI() {
+        const displayQ = Math.min(state.roundAsked + (state.quizAnswered ? 0 : 1), state.roundTotal);
+        const remMistakes = Math.max(0, state.maxAllowedWrong - state.roundWrong);
+        const minPassCorrect = state.roundTotal - state.maxAllowedWrong;
+        document.getElementById('roundProgressText').textContent = `第 ${displayQ} / ${state.roundTotal} 題（已答對 ${state.roundCorrect} 題）`;
+        const quotaEl = document.getElementById('roundQuotaHint');
+        if (quotaEl) {
+          quotaEl.textContent = state.roundWrong <= state.maxAllowedWrong
+            ? `（錯 ${state.roundWrong}/${state.maxAllowedWrong} 題｜剩餘容錯 ${remMistakes} 題）`
+            : `（已錯 ${state.roundWrong} 題，超過容錯上限 ${state.maxAllowedWrong} 題）`;
+        }
+        document.getElementById('roundScoreText').textContent = state.roundScore;
+        const pct = Math.min(100, Math.round((state.roundAsked / state.roundTotal) * 100));
+        document.getElementById('roundProgressBar').style.width = `${pct}%`;
+
+        const earlyBtn = document.getElementById('finishRoundEarlyBtn');
+        const isEligibleEarly = state.roundAsked >= state.roundTotal || state.roundCorrect >= minPassCorrect;
+        earlyBtn.style.display = state.roundAsked > 0 ? 'inline-flex' : 'none';
+        earlyBtn.textContent = isEligibleEarly ? '🏆 結算領取證書' : `📊 結算成績（需答對 ${minPassCorrect} 題才可領證）`;
+      }
+
+      async function syncScoreToGoogleSheet(record) {
+        const statusEl = document.getElementById('certSheetStatus');
+        const passLabel = record.passed ? '🎉 恭喜通過領證標準！' : '⚠️ 未達領證標準（需完成 93 題且錯題 ≤ 25 題）';
+        if (!state.sheetWebhookUrl) {
+          statusEl.textContent = `${passLabel}｜總分 ${record.score} 分（答對 ${record.correctCount}/${record.totalQuestions} 題）`;
+          return;
+        }
+        statusEl.textContent = '⏳ 正在將班級、座號、姓名與成績自動同步至老師的 Google 試算表...';
+        try {
+          await fetch(state.sheetWebhookUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(record)
+          });
+          statusEl.textContent = `✅ 已自動回傳至 Google 試算表！｜${record.className} ${record.seatNo}號 ${record.studentName}｜${record.score} 分（${record.passed ? '通過' : '未達標'}）`;
+        } catch (err) {
+          statusEl.textContent = '⚠️ 試算表連線失敗，請檢查網路或網址設定；您仍可下載結果圖片留存！';
+        }
+      }
+
+      function getCeoCertificateTier(record) {
+        const { score, passed, wrongCount, maxAllowedWrong, correctCount, totalQuestions } = record;
+        if (!passed) {
+          return {
+            title: '霸 總 特 訓 補 考 通 知 單',
+            rank: `顧總裁私人補習班・VIP 留校察看生（差 ${Math.max(1, (totalQuestions - maxAllowedWrong) - correctCount)} 題過關）`,
+            comment: `「93 題全單字考驗，本總裁已經寬限你錯 25 題了，結果你錯了 ${wrongCount} 題、還沒達標！這張先算『補考預約券』，罰你回閱讀版把單字重新聽一遍，達標再來領正式證書！」`
+          };
+        }
+        if (score >= 100) {
+          return {
+            title: '霸 總 特 訓 榮 譽 證 書',
+            rank: '顧氏集團首席英文特助（93題全制霸・甜點全包）',
+            comment: '「93 題一題都沒錯？很好，你的大腦比蘇助理還好使。從今天起，本總裁正式認證你的 7000 單滿級實力，段考考場隨你橫著走——誰敢質疑你，直接報我顧亭深的名字！」'
+          };
+        }
+        if (score >= 85) {
+          return {
+            title: '霸 總 特 訓 榮 譽 證 書',
+            rank: '顧總裁欽點・唯一例外榮譽菁英',
+            comment: `「93 題高強度馬拉松只錯了 ${wrongCount} 題！這份定力跟實力已經夠讓董事會老頑固閉嘴了，不愧是我顧亭深看中的人，今晚深夜薯條加倍奉上！」`
+          };
+        }
+        return {
+          title: '霸 總 特 訓 榮 譽 證 書',
+          rank: '聖曜藝術季・成功過關特約合作夥伴',
+          comment: `「撐完 93 題全單字考驗、錯 ${wrongCount} 題壓線過關，算你有點骨氣！雖然距離接管顧氏帝國還差一點火候，但看在你這麼認真的份上，這張證書本總裁准了！」`
+        };
+      }
+
+      function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight) {
+        const chars = Array.from(text);
+        let line = '';
+        let currY = y;
+        for (let i = 0; i < chars.length; i++) {
+          const testLine = line + chars[i];
+          if (ctx.measureText(testLine).width > maxWidth && line.length > 0) {
+            ctx.fillText(line, x, currY);
+            line = chars[i];
+            currY += lineHeight;
+          } else {
+            line = testLine;
+          }
+        }
+        if (line) ctx.fillText(line, x, currY);
+        return currY;
+      }
+
+      function renderCeoCertificateCanvas(record) {
+        const canvas = document.getElementById('certCanvas');
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width;
+        const H = canvas.height;
+        const tier = getCeoCertificateTier(record);
+
+        const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+        bgGrad.addColorStop(0, '#14111b');
+        bgGrad.addColorStop(0.5, '#1d1726');
+        bgGrad.addColorStop(1, '#120f17');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, W, H);
+
+        const glow1 = ctx.createRadialGradient(180, 140, 10, 180, 140, 360);
+        glow1.addColorStop(0, 'rgba(224, 184, 97, 0.16)');
+        glow1.addColorStop(1, 'rgba(224, 184, 97, 0)');
+        ctx.fillStyle = glow1;
+        ctx.fillRect(0, 0, W, H);
+
+        const glow2 = ctx.createRadialGradient(W - 180, H - 140, 10, W - 180, H - 140, 360);
+        glow2.addColorStop(0, 'rgba(244, 114, 182, 0.12)');
+        glow2.addColorStop(1, 'rgba(244, 114, 182, 0)');
+        ctx.fillStyle = glow2;
+        ctx.fillRect(0, 0, W, H);
+
+        ctx.strokeStyle = record.passed ? '#d4af37' : '#9ca3af';
+        ctx.lineWidth = 5;
+        ctx.strokeRect(32, 32, W - 64, H - 64);
+
+        ctx.strokeStyle = record.passed ? 'rgba(246, 216, 139, 0.45)' : 'rgba(156, 163, 175, 0.35)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(48, 48, W - 96, H - 96);
+
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#e5c16c';
+        ctx.font = '700 22px "Lora", Georgia, serif';
+        ctx.fillText('GU EMPIRE  ×  ST. YAO UNIVERSITY  ·  7000 VOCABULARY HONOR', W / 2, 108);
+
+        ctx.fillStyle = record.passed ? '#fff7e6' : '#fca5a5';
+        ctx.font = '900 54px "Noto Serif TC", serif';
+        ctx.fillText(tier.title, W / 2, 178);
+
+        const lineGrad = ctx.createLinearGradient(280, 0, W - 280, 0);
+        lineGrad.addColorStop(0, 'rgba(212,175,55,0)');
+        lineGrad.addColorStop(0.5, '#e5c16c');
+        lineGrad.addColorStop(1, 'rgba(212,175,55,0)');
+        ctx.strokeStyle = lineGrad;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(260, 206);
+        ctx.lineTo(W - 260, 206);
+        ctx.stroke();
+
+        ctx.fillStyle = '#d6cbbf';
+        ctx.font = '600 24px "Noto Sans TC", sans-serif';
+        ctx.fillText(`茲 證 明   ${record.className}   ${record.seatNo} 號`, W / 2, 260);
+
+        ctx.fillStyle = '#f8dfa0';
+        ctx.font = '900 52px "Noto Serif TC", serif';
+        ctx.fillText(`${record.studentName}  同學`, W / 2, 328);
+
+        ctx.fillStyle = 'rgba(224, 184, 97, 0.11)';
+        ctx.strokeStyle = 'rgba(224, 184, 97, 0.55)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(130, 362, W - 260, 124, 18);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#f3ece2';
+        ctx.font = '700 24px "Noto Sans TC", sans-serif';
+        ctx.fillText(`完成挑戰大題：【${record.quizMode}】（範圍：${record.scope}）`, W / 2, 408);
+
+        ctx.fillStyle = record.passed ? '#fbbf24' : '#f87171';
+        ctx.font = '900 38px "Noto Serif TC", serif';
+        ctx.fillText(`實戰總分：${record.score} 分 （答對 ${record.correctCount} / ${record.totalQuestions} 題，錯 ${record.wrongCount} 題）`, W / 2, 462);
+
+        ctx.fillStyle = '#f472b6';
+        ctx.font = '800 24px "Noto Sans TC", sans-serif';
+        ctx.fillText(`✦ 冊封頭銜：${tier.rank} ✦`, W / 2, 535);
+
+        ctx.fillStyle = '#ebe3d8';
+        ctx.font = '500 23px "Noto Serif TC", serif';
+        drawWrappedText(ctx, tier.comment, W / 2, 584, W - 210, 38);
+
+        const todayStr = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#b4aba0';
+        ctx.font = '600 21px "Noto Sans TC", sans-serif';
+        ctx.fillText(`頒發日期：${todayStr}`, 110, 742);
+        ctx.fillText(`認證編號：GU-${Date.now().toString().slice(-6)}`, 110, 776);
+
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#d6cbbf';
+        ctx.font = '600 21px "Noto Sans TC", sans-serif';
+        ctx.fillText('頒發人：顧氏集團執行長 兼 聖曜大學校董', W - 215, 732);
+
+        ctx.fillStyle = '#f8dfa0';
+        ctx.font = '900 40px "Noto Serif TC", serif';
+        ctx.fillText('總裁  顧 亭 深', W - 215, 782);
+
+        ctx.save();
+        ctx.translate(W - 135, 748);
+        ctx.rotate(-0.12);
+        ctx.strokeStyle = record.passed ? '#dc2626' : '#6b7280';
+        ctx.fillStyle = record.passed ? 'rgba(220, 38, 38, 0.14)' : 'rgba(107, 114, 128, 0.14)';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(0, 0, 50, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.strokeStyle = record.passed ? '#ef4444' : '#9ca3af';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(0, 0, 42, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.fillStyle = record.passed ? '#f87171' : '#d1d5db';
+        ctx.textAlign = 'center';
+        ctx.font = '900 18px "Noto Serif TC", serif';
+        ctx.fillText('顧氏集團', 0, -6);
+        ctx.fillText(record.passed ? '總裁親頒' : '待補考章', 0, 18);
+        ctx.restore();
+      }
+
+      function finalizeRoundAndShowCertificate(customRecord = null) {
+        const prof = getStudentProfile();
+        const totalQ = customRecord ? customRecord.totalQuestions : state.roundTotal;
+        const correctQ = customRecord ? customRecord.correctCount : state.roundCorrect;
+        const wrongQ = totalQ - correctQ;
+        const maxWrong = customRecord ? Math.floor(totalQ * 0.27) : state.maxAllowedWrong;
+        const passed = customRecord ? true : (state.roundAsked >= totalQ && wrongQ <= maxWrong);
+        const finalScore = customRecord ? customRecord.score : Math.round((correctQ / totalQ) * 100);
+
+        const record = {
+          className: prof.stuClass,
+          seatNo: prof.stuSeat,
+          studentName: prof.stuName,
+          quizMode: MODE_LABELS[state.quizMode] || state.quizMode,
+          scope: SCOPE_LABELS[state.quizScope] || state.quizScope,
+          correctCount: correctQ,
+          wrongCount: wrongQ,
+          maxAllowedWrong: maxWrong,
+          totalQuestions: totalQ,
+          score: finalScore,
+          passed
+        };
+
+        renderCeoCertificateCanvas(record);
+        const dlBtn = document.getElementById('certDownloadBtn');
+        dlBtn.textContent = passed ? '⬇️ 下載 PNG 榮譽證書圖片' : '⬇️ 下載成績紀念單（需答對 68 題以上領正式證書）';
+        document.getElementById('certModal').style.display = 'flex';
+        if (passed) {
+          launchFireworks();
+          playSfx('chime');
+        } else {
+          playSfx('error');
+        }
+        syncScoreToGoogleSheet(record);
+      }
+
+      document.getElementById('certCloseBtn').addEventListener('click', () => {
+        document.getElementById('certModal').style.display = 'none';
+      });
+      document.getElementById('certModal').addEventListener('click', (e) => {
+        if (e.target.id === 'certModal') document.getElementById('certModal').style.display = 'none';
+      });
+      document.getElementById('certDownloadBtn').addEventListener('click', () => {
+        playSfx('ding');
+        const prof = getStudentProfile();
+        const canvas = document.getElementById('certCanvas');
+        const link = document.createElement('a');
+        link.download = `顧亭深總裁頒發證書_${prof.stuClass}_${prof.stuSeat}號_${prof.stuName}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+      document.getElementById('certRetryBtn').addEventListener('click', () => {
+        playSfx('click');
+        document.getElementById('certModal').style.display = 'none';
+        resetRoundStats();
+        loadQuizQuestion();
+      });
+      document.getElementById('finishRoundEarlyBtn').addEventListener('click', () => {
+        playSfx('click');
+        finalizeRoundAndShowCertificate();
+      });
+
       function getQuizPool() {
         const scope = state.quizScope;
         if (scope === 'ALL') return VOCAB_DATA;
@@ -2480,30 +3127,28 @@
           return;
         }
 
+        if (!state.roundQueue || state.roundQueue.length === 0) {
+          resetRoundStats();
+        }
+
         stdArea.style.display = 'block';
         matchArea.style.display = 'none';
         state.quizAnswered = false;
         document.getElementById('quizFeedbackBox').style.display = 'none';
         document.getElementById('quizNextBtn').style.display = 'none';
+        document.getElementById('quizNextBtn').textContent = (state.roundAsked + 1 >= state.roundTotal) ? '🏆 結算 93 題總分並領取證書' : '下一題 ➡';
+        updateRoundProgressUI();
 
-        const modeTitles = {
-          en2zh: '1. 看英文選中文',
-          zh2en: '2. 看中文選英文',
-          listen2zh: '3. 聽英文選中文',
-          cloze: '4. 文意字彙填空',
-          reading: '5. 劇情閱讀測驗'
-        };
-        document.getElementById('quizModeLabel').textContent = modeTitles[state.quizMode];
+        document.getElementById('quizModeLabel').textContent = MODE_LABELS[state.quizMode] || '1. 看英文選中文';
 
         const promptBox = document.getElementById('quizPromptBox');
         const optionsGrid = document.getElementById('quizOptionsGrid');
 
-        // Sub-Mode 5: Reading Comprehension
         if (state.quizMode === 'reading') {
           const rPool = state.quizScope === 'CUR'
             ? READING_QUESTIONS.filter(q => q.ep === state.currentEp)
             : READING_QUESTIONS;
-          const qObj = rPool[Math.floor(Math.random() * rPool.length)];
+          const qObj = state.roundQueue[state.roundAsked % state.roundQueue.length] || rPool[Math.floor(Math.random() * rPool.length)];
           const indexedOpts = shuffleArr(qObj.opts.map((txt, idx) => ({ txt, isCorrect: idx === qObj.ans })));
           state.currentQuestion = { type: 'reading', exp: qObj.exp, options: indexedOpts };
 
@@ -2519,9 +3164,8 @@
           return;
         }
 
-        // Sub-Modes 1–4: Vocabulary Questions
         const pool = getQuizPool();
-        const target = pool[Math.floor(Math.random() * pool.length)];
+        const target = state.roundQueue[state.roundAsked % state.roundQueue.length] || pool[Math.floor(Math.random() * pool.length)];
         const distractors = shuffleArr(VOCAB_DATA.filter(v => v.id !== target.id)).slice(0, 3);
         const choices = shuffleArr([target, ...distractors]);
 
@@ -2604,6 +3248,9 @@
 
         if (opt.isCorrect) {
           state.streak += 1;
+          state.roundAsked += 1;
+          state.roundCorrect += 1;
+          state.roundScore = Math.round((state.roundCorrect / state.roundTotal) * 100);
           document.getElementById('quizStreakText').textContent = state.streak;
           fb.className = 'rounded-2xl p-4 text-sm sm:text-base font-extrabold bg-emerald-50 border-2 border-emerald-300 text-emerald-700';
           if (state.currentQuestion.type === 'reading') {
@@ -2615,6 +3262,9 @@
           triggerCelebration(10);
         } else {
           state.streak = 0;
+          state.roundAsked += 1;
+          state.roundWrong += 1;
+          state.roundScore = Math.round((state.roundCorrect / state.roundTotal) * 100);
           document.getElementById('quizStreakText').textContent = '0';
           playSfx('error');
           fb.className = 'rounded-2xl p-4 text-sm sm:text-base font-extrabold bg-rose-50 border-2 border-rose-300 text-rose-700';
@@ -2626,17 +3276,26 @@
             speakEnglish(t.word, 0.9);
           }
         }
+        updateRoundProgressUI();
+        if (state.roundAsked >= state.roundTotal) {
+          document.getElementById('quizNextBtn').textContent = '🏆 結算 93 題總分並領取證書';
+        }
       });
 
       document.getElementById('quizNextBtn').addEventListener('click', () => {
         playSfx('click');
-        loadQuizQuestion();
+        if (state.roundAsked >= state.roundTotal) {
+          finalizeRoundAndShowCertificate();
+        } else {
+          loadQuizQuestion();
+        }
       });
 
       document.querySelectorAll('.qmode-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           playSfx('click');
           state.quizMode = btn.getAttribute('data-qmode');
+          resetRoundStats();
           document.querySelectorAll('.qmode-btn').forEach(b => {
             b.className = 'qmode-btn min-h-[44px] rounded-xl px-3 py-2 text-xs sm:text-sm font-extrabold bg-[#FAF7F2] text-[#63574D] border border-[#E8DFD3] hover:border-[#C87932] transition';
           });
@@ -2647,6 +3306,7 @@
 
       document.getElementById('quizScopeSelect').addEventListener('change', (e) => {
         state.quizScope = e.target.value;
+        resetRoundStats();
         loadQuizQuestion();
       });
 
@@ -2711,7 +3371,13 @@
             state.matchMatchedCount++;
             triggerCelebration(10);
             if (state.matchMatchedCount >= state.matchTotalPairs) {
-              setTimeout(() => startMatchingRound(), 1400);
+              setTimeout(() => {
+                finalizeRoundAndShowCertificate({
+                  correctCount: state.matchTotalPairs,
+                  totalQuestions: state.matchTotalPairs,
+                  score: 100
+                });
+              }, 900);
             }
           } else {
             playSfx('error');
@@ -2990,11 +3656,12 @@
       })();
 
       /* =======================================================================
-         S. INITIALIZATION
+         S. BOOTSTRAP INITIALIZATION
          ======================================================================= */
       refillQuoteDeck();
       renderCurrentEpisode();
-      renderGlossary();
+      renderGlossary('');
+      loadQuizQuestion();
     })();
   </script>
 </body>
